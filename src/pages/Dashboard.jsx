@@ -10,7 +10,7 @@ export function Dashboard() {
     const [error, setError] = useState('');
     const [editingTask, setEditingTask] = useState(null);
     const token = useSelector((state) => state.auth.token);
-
+    const [selectedStatus, setSelectedStatus] = useState('');
 
 
 
@@ -40,14 +40,31 @@ export function Dashboard() {
         }
     };
 
+    const fetchSearchedTasks = async (status) => {
+        try {
+            const response = await fetch(`http://localhost:8081/tasks/${status}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlQGV4YW1wbGUuY29tIiwidXNlck5hbWUiOiJqb2huX2RvZSIsInJvbGUiOlsiQURNSU4iXSwiZXhwIjoxNzMwMzYwNDk5fQ.JGl0sALsuKKqDTJ9UHhBovkXJXktXKlVqS4UdjMiEBw`, // Use 'Bearer' followed by a space and your token
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error('Failed to fetch tasks: ' + response.statusText);
+
+            const data = await response.json();
+            setTasks(data); // Update tasks state with fetched data
+        } catch (err) {
+            console.error('Fetch error:', err); // Log the full error
+            setError(err.message); // Update error state with error message
+        }
+    };
+
     useEffect(() => {
         fetchTasks(); // Fetch tasks when component mounts
     }, []);
 
-    var id=3;
-    var title="sdad"
-    var description="dsadsaaa"
-    var status="INCOMPLETE"
+
     // Add or Update a Task
     const saveTask = async (task) => {
 
@@ -95,11 +112,61 @@ export function Dashboard() {
             setError(err.message); // Set error message if login fails
         }
     };
+    // Function to handle search input change
+    const handleStatusChange = (event) => {
+        const status = event.target.value;
+        setSelectedStatus(status);
+
+        // Call fetchSearchedTasks when "Complete" or "Incomplete" is selected
+        if (status === 'COMPLETE' || status === 'INCOMPLETE') {
+            console.log("inside complete or not")
+            fetchSearchedTasks(status);
+        } else {
+            fetchTasks(); // Call fetchTasks when "All" is selected
+        }
+    };
+    const filteredTasks = tasks.filter(task => {
+        if (selectedStatus === '') return true; // Show all tasks if no status is selected
+        return task.status === selectedStatus; // Match status
+    });
 
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold text-center mb-4">Task Manager</h1>
             {error && <p className="text-red-500 text-center">{error}</p>}
+            {/* Radio buttons for filtering tasks by status */}
+            <div className="mb-4">
+                <span className="font-medium">Filter by status:</span>
+                <div className="flex items-center">
+                    <label className="mr-4">
+                        <input
+                            type="radio"
+                            value=""
+                            checked={selectedStatus === ''}
+                            onChange={handleStatusChange}
+                        />
+                        All
+                    </label>
+                    <label className="mr-4">
+                        <input
+                            type="radio"
+                            value="COMPLETE"
+                            checked={selectedStatus === 'COMPLETE'}
+                            onChange={handleStatusChange}
+                        />
+                        Complete
+                    </label>
+                    <label className="mr-4">
+                        <input
+                            type="radio"
+                            value="INCOMPLETE"
+                            checked={selectedStatus === 'INCOMPLETE'}
+                            onChange={handleStatusChange}
+                        />
+                        Incomplete
+                    </label>
+                </div>
+            </div>
             <TaskForm onSave={saveTask} editingTask={editingTask} />
             <TaskList tasks={tasks} onEdit={setEditingTask} onDelete={deleteTask} onToggleComplete={saveTask} />
         </div>
