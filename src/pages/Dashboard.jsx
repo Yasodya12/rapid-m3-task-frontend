@@ -61,7 +61,7 @@ export function Dashboard() {
             });
 
             if (!response.ok) {
-                throw new Error('Login failed. Please check your credentials.');
+                throw new Error('Login . Please check your credentials.');
             }
 
             const data = await response.json();
@@ -86,7 +86,7 @@ export function Dashboard() {
                 throw new Error('Fail to Delete.');
             }
 
-            
+
             // Redirect to the dashboard on successful login
 
             // Handle successful login, e.g., save token or redirect

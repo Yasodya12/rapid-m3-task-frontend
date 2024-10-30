@@ -11,7 +11,7 @@ function TaskList({ tasks, onEdit, onDelete, onToggleComplete }) {
                     task={task}
                     onEdit={onEdit}
                     onDelete={onDelete}
-                    onToggleComplete={() => onToggleComplete({ ...task, status: task.status === 'complete' ? 'incomplete' : 'complete' })}
+                    onToggleComplete={() => onToggleComplete({ ...task, status: task.status === 'COMPLETE' ? 'INCOMPLETE' : 'COMPLETE' })}
                 />
             ))}
         </div>
